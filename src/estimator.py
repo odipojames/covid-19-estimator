@@ -26,10 +26,10 @@ def estimator(data):
             impact["currentlyInfected"] * (2**(data["timeToElapse"] * 30) / 3))
     impact["severeCasesByRequestedTime"] = impact["infectionsByRequestedTime"] * 0.15
     severeImpact["severeCasesByRequestedTime"] = severeImpact["infectionsByRequestedTime"] * 0.15
-    impact["hospitalBedsByRequestedTime"] - \
+    impact["hospitalBedsByRequestedTime"] -
         (data["totalHosiptalBeds"] * 0.35 -
          impact["severeCasesByRequestedTime"])
-    severeImpact["hospitalBedsByRequestedTime"] - \
+    severeImpact["hospitalBedsByRequestedTime"] -
         (data["totalHosiptalBeds"] * 0.35 -
          severeImpact["severeCasesByRequestedTime"])
     impact["casesForICUByRequestedTime"] = impact["infectionsByRequestedTime"] * 0.5
