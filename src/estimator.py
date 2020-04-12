@@ -9,10 +9,9 @@ def estimator(data):
     severeImpact["currentlyInfected"] = "%1.9f" %(data["reportedCases"] * 50)
 
     if data["periodType"].lower() == "days":
-        impactEstimate =  math.ceil(
-            impact["currentlyInfected"] * 2 ** data["timeToElapse"]/ 3) 
-        )
-        impact["infectionsByRequestedTime"] ="%1.9f" %impactEstimate
+
+        impact["infectionsByRequestedTime"] ="%1.9f" %math.ceil(
+            impact["currentlyInfected"] * 2 ** (data["timeToElapse"]/ 3))
         severeImpact["infectionsByRequestedTime"] = "%1.9f" %math.ceil(
             impact["currentlyInfected"] * (2 ** (data["timeToElapse"]) / 3)
         )
