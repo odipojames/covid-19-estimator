@@ -1,38 +1,33 @@
 import math
 
 
-def float_rep(x):
-    """rep float to human readablbe"""
-    num = "%1.9f" % x
-    return num
-
 
 def estimator(data):
     results = {}
     impact = {}
     severeImpact = {}
-    impact["currentlyInfected"] = float_rep(data["reportedCases"] * 10)
-    severeImpact["currentlyInfected"] = float_rep(data["reportedCases"] * 50)
+    impact["currentlyInfected"] = float(data["reportedCases"] * 10)
+    severeImpact["currentlyInfected"] = float(data["reportedCases"] * 50)
 
     if data["periodType"].lower() == "days":
 
-        impact["infectionsByRequestedTime"] = float_rep(int(
+        impact["infectionsByRequestedTime"] = float(math.ceil(
             float(impact["currentlyInfected"]) * 2 ** (data["timeToElapse"] / 3)))
-        severeImpact["infectionsByRequestedTime"] = float_rep(int(
+        severeImpact["infectionsByRequestedTime"] = float(math.ceil(
             float(impact["currentlyInfected"]) * 2**(data["timeToElapse"] / 3)))
 
     if data["periodType"].lower() == "weeks":
-        impact["infectionsByRequestedTime"] = float_rep(int(
+        impact["infectionsByRequestedTime"] = float(math.ceil(
             float(impact["currentlyInfected"]) * 2**(data["timeToElapse"] * 7 / 3)))
-        severeImpact["infectionsByRequestedTime"] = float_rep(int(
+        severeImpact["infectionsByRequestedTime"] = float(math.ceil(
             float(impact["currentlyInfected"]) * 2**(data["timeToElapse"] * 7 / 3)))
 
     if data["periodType"].lower() == "months":
-        impact["infectionsByRequestedTime"] = float_rep(int(
+        impact["infectionsByRequestedTime"] = float(math.ceil(
             float(impact["currentlyInfected"]) *
                   2**(data["timeToElapse"] * 30 / 3)))
 
-        severeImpact["infectionsByRequestedTime"] = float_rep(int(
+        severeImpact["infectionsByRequestedTime"] = float(math.ceil(
             float(severeImpact["currentlyInfected"]) *
                   2**(data["timeToElapse"] * 30 / 3)))
 
