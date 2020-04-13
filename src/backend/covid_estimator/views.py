@@ -17,7 +17,13 @@ import json
 # Create your views here.
 
 
-class ListCreateRegionDataAPIView(generics.ListCreateAPIView):
+def float_rep(x):
+    """rep float to human readablbe"""
+    num = "%1.9f" % x
+    return num
+
+
+class ListCreateRegionDataAPIView(generics.CreateAPIView):
     """posting region data"""
 
     serializer_class = RegionDataSerializer
@@ -37,96 +43,126 @@ class ListCreateRegionDataAPIView(generics.ListCreateAPIView):
         severeImpact = {}
         results = {}
         # currently infected
-        impact["currentlyInfected"] = response["reported_cases"] * 10
-        severeImpact["currentlyInfected"] = response["reported_cases"] * 50
+        impact["currentlyInfected"] = float_rep(response["reported_cases"] * 10)
+        severeImpact["currentlyInfected"] = float_rep(response["reported_cases"] * 50)
         # infectionsByRequestedTime
         if response["period_type"].lower() == "days":
-            impact["infectionsByRequestedTime"] = math.ceil(
-                impact["currentlyInfected"] * (2 ** (response["time_to_elapse"]) / 3)
+            impact["infectionsByRequestedTime"] = float_rep(
+                math.ceil(
+                    float(impact["currentlyInfected"])
+                    * 2 ** (response["time_to_elapse"] / 3)
+                )
             )
-            severeImpact["infectionsByRequestedTime"] = math.ceil(
-                severeImpact["currentlyInfected"]
-                * (2 ** (response["time_to_elapse"]) / 3)
+            severeImpact["infectionsByRequestedTime"] = float_rep(
+                math.ceil(
+                    float(severeImpact["currentlyInfected"])
+                    * 2 ** (response["time_to_elapse"] / 3)
+                )
             )
         if response["period_type"].lower() == "weeks":
-            impact["infectionsByRequestedTime"] = math.ceil(
-                impact["currentlyInfected"]
-                * (2 ** (response["time_to_elapse"] * 7) / 3)
+            impact["infectionsByRequestedTime"] = float_rep(
+                math.ceil(
+                    float(impact["currentlyInfected"])
+                    * 2 ** (response["time_to_elapse"] * 7 / 3)
+                )
             )
-            severeImpact["infectionsByRequestedTime"] = math.ceil(
-                severeImpact["currentlyInfected"]
-                * (2 ** (response["time_to_elapse"] * 7) / 3)
+            severeImpact["infectionsByRequestedTime"] = float_rep(
+                math.ceil(
+                    float(severeImpact["currentlyInfected"])
+                    * 2 ** (response["time_to_elapse"] * 7 / 3)
+                )
             )
         if response["period_type"].lower() == "months":
-            impact["infectionsByRequestedTime"] = math.ceil(
-                impact["currentlyInfected"]
-                * (2 ** (response["time_to_elapse"] * 30) / 3)
+            impact["infectionsByRequestedTime"] = float_rep(
+                math.ceil(
+                    float(impact["currentlyInfected"])
+                    * 2 ** (response["time_to_elapse"] * 30 / 3)
+                )
             )
-            severeImpact["infectionsByRequestedTime"] = math.ceil(
-                severeImpact["currentlyInfected"]
-                * (2 ** (response["time_to_elapse"] * 30) / 3)
+            severeImpact["infectionsByRequestedTime"] = float_rep(
+                math.ceil(
+                    float(severeImpact["currentlyInfected"])
+                    * 2 ** (response["time_to_elapse"] * 30 / 3)
+                )
             )
         # severeCasesByRequestedTime
-        impact["severeCasesByRequestedTime"] = (
-            impact["infectionsByRequestedTime"] * 0.15
+        impact["severeCasesByRequestedTime"] = float_rep(
+            math.ceil(float(impact["infectionsByRequestedTime"]) * 0.15)
         )
-        severeImpact["severeCasesByRequestedTime"] = (
-            severeImpact["infectionsByRequestedTime"] * 0.15
+
+        severeImpact["severeCasesByRequestedTime"] = float_rep(
+            math.ceil(float(severeImpact["infectionsByRequestedTime"]) * 0.15)
         )
+
         # hospitalBedsByRequestedTime
-        impact["hospitalBedsByRequestedTime"] = (
-            response["total_hosiptal_beds"] * 0.35
-            - impact["severeCasesByRequestedTime"]
+        impact["hospitalBedsByRequestedTime"] = float_rep(
+            math.ceil(
+                response["total_hosiptal_beds"] * 0.35
+                - float(impact["severeCasesByRequestedTime"])
+            )
         )
-        severeImpact["hospitalBedsByRequestedTime"] = (
-            response["total_hosiptal_beds"] * 0.35
-            - severeImpact["severeCasesByRequestedTime"]
+        severeImpact["hospitalBedsByRequestedTime"] = float_rep(
+            math.ceil(
+                response["total_hosiptal_beds"] * 0.35
+                - float(severeImpact["severeCasesByRequestedTime"])
+            )
         )
         # casesForICUByRequestedTime
-        impact["casesForICUByRequestedTime"] = (
-            impact["infectionsByRequestedTime"] * 0.05
+        impact["casesForICUByRequestedTime"] = float_rep(
+            math.ceil(float(impact["infectionsByRequestedTime"]) * 0.05)
         )
-        severeImpact["casesForICUByRequestedTime"] = (
-            severeImpact["infectionsByRequestedTime"] * 0.05
+
+        severeImpact["casesForICUByRequestedTime"] = float_rep(
+            math.ceil(float(severeImpact["infectionsByRequestedTime"]) * 0.05)
         )
+
         # casesForVentilatorsByRequestedTime
-        impact["casesForICUByRequestedTime"] = (
-            impact["infectionsByRequestedTime"] * 0.02
+        impact["casesForICUByRequestedTime"] = float_rep(
+            math.ceil(float(impact["infectionsByRequestedTime"]) * 0.02)
         )
-        severeImpact["casesForICUByRequestedTime"] = (
-            severeImpact["infectionsByRequestedTime"] * 0.02
+        severeImpact["casesForICUByRequestedTime"] = float_rep(
+            math.ceil(float(severeImpact["infectionsByRequestedTime"]) * 0.02)
         )
         # dollarsInFlight
         region_data = response.pop("region")
         if response["period_type"].lower() == "days":
-            impact["dollarsInFlight"] = (
-                impact["infectionsByRequestedTime"]
-                * region_data["avg_daily_income_population"]
-                * region_data["avg_daily_income"]
-                * response["time_to_elapse"]
-            )
-            severeImpact["dollarsInFlight"] = (
-                severeImpact["infectionsByRequestedTime"]
-                * region_data["avg_daily_income_population"]
-                * region_data["avg_daily_income"]
-                * response["time_to_elapse"]
-            )
-        if response["period_type"].lower() == "weeks":
-            impact["dollarsInFlight"] = (
-                impact["infectionsByRequestedTime"]
-                * region_data["avg_daily_income_population"]
-                * region_data["avg_daily_income"]
-                * response["time_to_elapse"]
-                * 7
-            )
-            severeImpact["dollarsInFlight"] = (
-                severeImpact["infectionsByRequestedTime"]
-                * region_data["avg_daily_income_population"]
-                * region_data["avg_daily_income"]
-                * response["time_to_elapse"]
-                * 7
+            impact["dollarsInFlight"] = float_rep(
+                math.ceil(
+                    float(impact["infectionsByRequestedTime"])
+                    * region_data["avg_daily_income_population"]
+                    * region_data["avg_daily_income"]
+                    * response["time_to_elapse"]
+                )
             )
 
+            severeImpact["dollarsInFlight"] = float_rep(
+                math.ceil(
+                    float(severeImpact["infectionsByRequestedTime"])
+                    * region_data["avg_daily_income_population"]
+                    * region_data["avg_daily_income"]
+                    * response["time_to_elapse"]
+                )
+            )
+
+        if response["period_type"].lower() == "weeks":
+            impact["dollarsInFlight"] = float_rep(
+                math.ceil(
+                    float(impact["infectionsByRequestedTime"])
+                    * region_data["avg_daily_income_population"]
+                    * region_data["avg_daily_income"]
+                    * response["time_to_elapse"]
+                    * 7
+                )
+            )
+            severeImpact["dollarsInFlight"] = float_rep(
+                math.ceil(
+                    float(severeImpact["infectionsByRequestedTime"])
+                    * region_data["avg_daily_income_population"]
+                    * region_data["avg_daily_income"]
+                    * response["time_to_elapse"]
+                    * 7
+                )
+            )
         results["data"] = response
         results["impact"] = impact
         results["severeImpact"] = severeImpact
@@ -139,117 +175,6 @@ class ListCreateRegionDataAPIView(generics.ListCreateAPIView):
             duration=round(duration, 2),
         )
         return Response(results, status.HTTP_201_CREATED)
-
-    def list(self, request, *args, **kwargs):
-        start_time = time.time()
-        results = {}
-        impact = {}
-        severeImpact = {}
-        queryset = self.get_queryset()
-        objects = self.serializer_class(queryset, many=True)
-        for obj in objects.data:
-            impact = {}
-            severeImpact = {}
-            results = {}
-            # currently infected
-            impact["currentlyInfected"] = obj["reported_cases"] * 10
-            severeImpact["currentlyInfected"] = obj["reported_cases"] * 50
-            # infectionsByRequestedTime
-            if obj["period_type"].lower() == "days":
-                impact["infectionsByRequestedTime"] = math.ceil(
-                    impact["currentlyInfected"] * (2 ** (obj["time_to_elapse"]) / 3)
-                )
-                severeImpact["infectionsByRequestedTime"] = math.ceil(
-                    severeImpact["currentlyInfected"]
-                    * (2 ** (obj["time_to_elapse"]) / 3)
-                )
-            if obj["period_type"].lower() == "weeks":
-                impact["infectionsByRequestedTime"] = math.ceil(
-                    impact["currentlyInfected"] * (2 ** (obj["time_to_elapse"] * 7) / 3)
-                )
-                severeImpact["infectionsByRequestedTime"] = math.ceil(
-                    severeImpact["currentlyInfected"]
-                    * (2 ** (obj["time_to_elapse"] * 7) / 3)
-                )
-            if obj["period_type"].lower() == "months":
-                impact["infectionsByRequestedTime"] = math.ceil(
-                    impact["currentlyInfected"]
-                    * (2 ** (obj["time_to_elapse"] * 30) / 3)
-                )
-                severeImpact["infectionsByRequestedTime"] = math.ceil(
-                    severeImpact["currentlyInfected"]
-                    * (2 ** (obj["time_to_elapse"] * 30) / 3)
-                )
-            # severeCasesByRequestedTime
-            impact["severeCasesByRequestedTime"] = (
-                impact["infectionsByRequestedTime"] * 0.15
-            )
-            severeImpact["severeCasesByRequestedTime"] = (
-                severeImpact["infectionsByRequestedTime"] * 0.15
-            )
-            # hospitalBedsByRequestedTime
-            impact["hospitalBedsByRequestedTime"] = (
-                obj["total_hosiptal_beds"] * 0.35 - impact["severeCasesByRequestedTime"]
-            )
-            severeImpact["hospitalBedsByRequestedTime"] = (
-                obj["total_hosiptal_beds"] * 0.35
-                - severeImpact["severeCasesByRequestedTime"]
-            )
-            # casesForICUByRequestedTime
-            impact["casesForICUByRequestedTime"] = (
-                impact["infectionsByRequestedTime"] * 0.05
-            )
-            severeImpact["casesForICUByRequestedTime"] = (
-                severeImpact["infectionsByRequestedTime"] * 0.05
-            )
-            # casesForVentilatorsByRequestedTime
-            impact["casesForICUByRequestedTime"] = (
-                impact["infectionsByRequestedTime"] * 0.02
-            )
-            severeImpact["casesForICUByRequestedTime"] = (
-                severeImpact["infectionsByRequestedTime"] * 0.02
-            )
-            # dollarsInFlight
-            region_data = obj.pop("region")
-            if obj["period_type"].lower() == "days":
-                impact["dollarsInFlight"] = (
-                    impact["infectionsByRequestedTime"]
-                    * region_data["avg_daily_income_population"]
-                    * region_data["avg_daily_income"]
-                    * obj["time_to_elapse"]
-                )
-                severeImpact["dollarsInFlight"] = (
-                    severeImpact["infectionsByRequestedTime"]
-                    * region_data["avg_daily_income_population"]
-                    * region_data["avg_daily_income"]
-                    * obj["time_to_elapse"]
-                )
-            if obj["period_type"].lower() == "weeks":
-                impact["dollarsInFlight"] = (
-                    impact["infectionsByRequestedTime"]
-                    * region_data["avg_daily_income_population"]
-                    * region_data["avg_daily_income"]
-                    * obj["time_to_elapse"]
-                    * 7
-                )
-                severeImpact["dollarsInFlight"] = (
-                    severeImpact["infectionsByRequestedTime"]
-                    * region_data["avg_daily_income_population"]
-                    * region_data["avg_daily_income"]
-                    * obj["time_to_elapse"]
-                    * 7
-                )
-
-            results["data"] = obj
-            results["impact"] = impact
-            results["severeImpact"] = severeImpact
-            # logs
-            end_time = time.time()
-            duration = end_time - start_time
-            Log.objects.create(
-                time_stamp=start_time, path=request.path, duration=duration
-            )
-        return Response(results, status.HTTP_200_OK)
 
 
 class ListLogAPIView(generics.ListAPIView):
