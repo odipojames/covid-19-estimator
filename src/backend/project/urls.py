@@ -23,7 +23,7 @@ from django.views.generic.base import RedirectView
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Covid-19 impact estimator API",
+        title="Covid-19 impact estimator API BY ODIPO ONAYA",
         default_version="v1",
         description=("REST API that estimates impact of covid-19 based on user data"),
         terms_of_service="https://www.covidestmator/policies/terms/",
